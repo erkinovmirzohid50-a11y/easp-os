@@ -1,11 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { Dashboard } from './pages/Dashboard'
+import { Goals } from './pages/Goals'
 import { ModulePage } from './pages/ModulePage'
+import { Tasks } from './pages/Tasks'
+import './modules.css'
 
-const modules = [
-  { path: 'tasks', title: 'Tasks', description: 'Turn your plans into small, focused next steps.' },
-  { path: 'goals', title: 'Goals', description: 'Keep your longer-term direction within reach.' },
+const placeholderModules = [
   { path: 'habits', title: 'Habits', description: 'Build gentle routines, one day at a time.' },
   { path: 'calendar', title: 'Calendar', description: 'See what is coming up and make room for what matters.' },
   { path: 'notes', title: 'Notes', description: 'A quiet place to capture thoughts and ideas.' },
@@ -19,7 +20,9 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
-          {modules.map((module) => (
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="goals" element={<Goals />} />
+          {placeholderModules.map((module) => (
             <Route
               key={module.path}
               path={module.path}
