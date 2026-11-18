@@ -1,20 +1,22 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        ink: '#090b10',
-        panel: '#11141c',
-        muted: '#8b90a0',
-        accent: '#a78bfa',
-        mint: '#85e0c3',
+        ink: '#050505',
+        panel: '#0A0A0D',
+        muted: '#92929B',
+        accent: '#8875FF',
+        mint: '#00D6A0',
+        cyan: '#16D9E8',
+        magenta: '#D66BCE',
+        burgundy: '#6E304D',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        glow: '0 0 42px rgba(167, 139, 250, 0.16)',
+        glow: '0 0 42px rgba(136, 117, 255, 0.18)',
       },
     },
   },
