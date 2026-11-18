@@ -1,3 +1,5 @@
+import './animated-background.css'
+
 export function AnimatedBackground() {
   return (
     <div

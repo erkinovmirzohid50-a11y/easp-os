@@ -1,0 +1,62 @@
+/* Keep the fixed effect in the app stacking context, above the body fallback and below UI. */
+.animated-background.animated-background {
+  z-index: 0 !important;
+}
+
+.main-shell {
+  position: relative;
+  z-index: 10;
+}
+
+/* The oversized layers travel far enough for the lighting and pleats to visibly drift. */
+.animated-background .background-ribs {
+  inset: -20%;
+  animation: rib-drift-visible 30s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.animated-background .background-undertones {
+  animation: undertone-shift-visible 25s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.animated-background .background-light {
+  inset: -20%;
+  opacity: .58;
+  animation: diagonal-light-drift-visible 32s ease-in-out infinite alternate,
+    light-breathe-visible 21s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes rib-drift-visible {
+  from { transform: translate3d(-1.4vw, 0, 0); }
+  to { transform: translate3d(1.4vw, 0, 0); }
+}
+
+@keyframes diagonal-light-drift-visible {
+  from { transform: translate3d(-11vw, -2vh, 0) rotate(-3deg); }
+  to { transform: translate3d(12vw, 3vh, 0) rotate(3deg); }
+}
+
+@keyframes light-breathe-visible {
+  from { opacity: .42; }
+  to { opacity: .68; }
+}
+
+@keyframes undertone-shift-visible {
+  from { opacity: .48; }
+  to { opacity: .78; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-background .background-ribs,
+  .animated-background .background-undertones,
+  .animated-background .background-light {
+    animation: none !important;
+    will-change: auto;
+  }
+  .animated-background .background-light {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: .55;
+  }
+}
