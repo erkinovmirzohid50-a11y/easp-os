@@ -1,9 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import {
-  Activity, CalendarDays, CheckSquare2, ChevronDown, CircleDot, Command,
+  Activity, CalendarDays, CheckSquare2, ChevronDown, CircleDot,
   FileText, Focus, Goal, LayoutDashboard, Menu, Sparkles, Target,
 } from 'lucide-react'
 import { useState } from 'react'
+import { AnimatedBackground } from './AnimatedBackground'
 
 const primaryLinks = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -23,7 +24,8 @@ export function Layout() {
   const navClass = ({ isActive }: { isActive: boolean }) => `nav-link${isActive ? ' nav-link-active' : ''}`
 
   return (
-    <div className="min-h-screen bg-ink text-white">
+    <div className="relative isolate min-h-screen text-white">
+      <AnimatedBackground />
       {mobileOpen && <button className="mobile-scrim" aria-label="Close navigation" onClick={() => setMobileOpen(false)} />}
       <aside className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
         <div className="brand-row">
@@ -52,11 +54,11 @@ export function Layout() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="upgrade-card"><div className="upgrade-icon"><CircleDot size={16} /></div><p className="text-sm font-medium">Make room to grow</p><p className="mt-1 text-xs leading-5 text-muted">Your personal space for a more intentional day.</p><div className="mt-3 flex items-center gap-1.5 text-xs text-accent"><Command size={13} /> A little progress adds up</div></div>
-          <button className="profile-row"><div className="profile-avatar">E</div><span className="min-w-0 flex-1 text-left"><span className="block truncate text-sm font-medium">Erkinov</span><span className="mt-0.5 block text-xs text-muted">Personal workspace</span></span><ChevronDown size={15} className="text-muted" /></button>
+          <div className="upgrade-card"><div className="upgrade-icon"><CircleDot size={16} /></div><p className="text-sm font-medium">Make room to grow</p><p className="mt-1 text-xs leading-5 text-muted">Your personal space is just getting started.</p></div>
+          <button className="profile-row"><div className="profile-avatar">E</div><span className="min-w-0 flex-1 text-left"><span className="block truncate text-sm font-medium">Erkinov</span><span className="block text-xs text-muted">Personal space</span></span></button>
         </div>
       </aside>
-      <main className="main-shell">
+      <main className="main-shell relative z-0">
         <header className="topbar">
           <button className="icon-button lg:hidden" aria-label="Open navigation" onClick={() => setMobileOpen(true)}><Menu size={20} /></button>
           <div className="topbar-context"><span className="topbar-dot" /> A little more intentional</div>
