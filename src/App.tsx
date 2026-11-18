@@ -1,18 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { Calendar } from './pages/Calendar'
 import { Dashboard } from './pages/Dashboard'
+import { Focus } from './pages/Focus'
 import { Goals } from './pages/Goals'
-import { ModulePage } from './pages/ModulePage'
+import { Habits } from './pages/Habits'
+import { Insights } from './pages/Insights'
+import { Notes } from './pages/Notes'
 import { Tasks } from './pages/Tasks'
 import './modules.css'
-
-const placeholderModules = [
-  { path: 'habits', title: 'Habits', description: 'Build gentle routines, one day at a time.' },
-  { path: 'calendar', title: 'Calendar', description: 'See what is coming up and make room for what matters.' },
-  { path: 'notes', title: 'Notes', description: 'A quiet place to capture thoughts and ideas.' },
-  { path: 'focus', title: 'Focus timer', description: 'Make space for one thing at a time.' },
-  { path: 'insights', title: 'Insights', description: 'Notice your progress and patterns over time.' },
-]
 
 export default function App() {
   return (
@@ -22,13 +18,11 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="goals" element={<Goals />} />
-          {placeholderModules.map((module) => (
-            <Route
-              key={module.path}
-              path={module.path}
-              element={<ModulePage title={module.title} description={module.description} />}
-            />
-          ))}
+          <Route path="habits" element={<Habits />} />
+          <Route path="calendar" element={<Calendar />} />
+          <Route path="notes" element={<Notes />} />
+          <Route path="focus" element={<Focus />} />
+          <Route path="insights" element={<Insights />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
