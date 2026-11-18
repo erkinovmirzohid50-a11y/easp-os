@@ -8,24 +8,17 @@ import { Habits } from './pages/Habits'
 import { Insights } from './pages/Insights'
 import { Notes } from './pages/Notes'
 import { Tasks } from './pages/Tasks'
+import { Bookmarks } from './pages/Bookmarks'
+import { SettingsPage } from './pages/Settings'
 import './modules.css'
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="goals" element={<Goals />} />
-          <Route path="habits" element={<Habits />} />
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="notes" element={<Notes />} />
-          <Route path="focus" element={<Focus />} />
-          <Route path="insights" element={<Insights />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  )
+  return <BrowserRouter><Routes><Route element={<Layout />}>
+    <Route index element={<Dashboard />} />
+    <Route path="tasks" element={<Tasks />} /><Route path="goals" element={<Goals />} />
+    <Route path="habits" element={<Habits />} /><Route path="calendar" element={<Calendar />} />
+    <Route path="notes" element={<Notes />} /><Route path="focus" element={<Focus />} />
+    <Route path="insights" element={<Insights />} /><Route path="bookmarks" element={<Bookmarks />} />
+    <Route path="settings" element={<SettingsPage />} /><Route path="*" element={<Navigate to="/" replace />} />
+  </Route></Routes></BrowserRouter>
 }

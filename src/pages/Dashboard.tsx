@@ -1,89 +1,88 @@
-import { useEffect, useState } from 'react'
-import { ArrowUpRight, Check, Clock3, Plus, Sparkles } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Activity, ArrowUpRight, Bookmark, CalendarDays, CheckSquare2, CircleHelp, FileText, Focus, Goal, Lightbulb, Play, Settings, Sparkles } from 'lucide-react'
+import { Link, useOutletContext } from 'react-router-dom'
+import type { LayoutContext } from '../components/Layout'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
-const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date())
-const phrases = [
-  'MAKE TODAY COUNT.',
-  'BUILD YOUR OWN FUTURE.',
-  'ONE STEP AT A TIME.',
-  'FOCUS ON WHAT MATTERS.',
-  'PROGRESS OVER PERFECTION.',
-  'YOUR TIME STARTS NOW.',
+type Phrase = [string, string, string]
+const phrases: Phrase[] = [
+  ['MAKE', 'TODAY', 'COUNT.'], ['BUILD YOUR', 'OWN', 'FUTURE.'], ['ONE STEP', 'AT A', 'TIME.'],
+  ['FOCUS ON', 'WHAT', 'MATTERS.'], ['PROGRESS', 'OVER', 'PERFECTION.'], ['YOUR TIME', 'STARTS', 'NOW.'],
 ]
-const modules = [
-  { to: '/tasks', title: 'Tasks', detail: 'Small steps, in motion.', icon: Check, color: 'green' },
-  { to: '/goals', title: 'Goals', detail: 'Keep your north star close.', icon: Sparkles, color: 'cyan' },
-  { to: '/habits', title: 'Habits', detail: 'Build a rhythm that lasts.', icon: Clock3, color: 'turquoise' },
-  { to: '/calendar', title: 'Calendar', detail: 'Make room for what matters.', icon: Clock3, color: 'pink' },
-  { to: '/notes', title: 'Notes', detail: 'A home for your thoughts.', icon: Sparkles, color: 'purple' },
-  { to: '/focus', title: 'Focus', detail: 'One thing at a time.', icon: Clock3, color: 'blue' },
-  { to: '/insights', title: 'Insights', detail: 'Notice how far you’ve come.', icon: ArrowUpRight, color: 'burgundy' },
+type ModuleCard = { to: string; title: string; caption: string; color: string; icon: typeof Sparkles; key: string; kind: 'array' | 'number' }
+const cards: ModuleCard[] = [
+  { to: '/', title: 'Today / Overview', caption: 'A clear view of your day.', color: 'purple', icon: Sparkles, key: 'today', kind: 'array' },
+  { to: '/tasks', title: 'Tasks', caption: 'Small steps, in motion.', color: 'green', icon: CheckSquare2, key: 'easpos.tasks.v1', kind: 'array' },
+  { to: '/goals', title: 'Goals', caption: 'Keep your north star close.', color: 'cyan', icon: Goal, key: 'easpos.goals.v1', kind: 'array' },
+  { to: '/habits', title: 'Habits', caption: 'Build a rhythm that lasts.', color: 'turquoise', icon: Activity, key: 'easpos.habits.v1', kind: 'array' },
+  { to: '/calendar', title: 'Calendar', caption: 'Make room for what matters.', color: 'pink', icon: CalendarDays, key: 'easpos.events.v1', kind: 'array' },
+  { to: '/notes', title: 'Notes', caption: 'A home for your thoughts.', color: 'purple', icon: FileText, key: 'easpos.notes.v1', kind: 'array' },
+  { to: '/focus', title: 'Focus', caption: 'One thing at a time.', color: 'blue', icon: Focus, key: 'easpos.focus.sessions.v1', kind: 'array' },
+  { to: '/insights', title: 'Insights', caption: 'Notice how far you’ve come.', color: 'burgundy', icon: Lightbulb, key: 'easpos.tasks.v1', kind: 'array' },
+  { to: '/bookmarks', title: 'Bookmarks', caption: 'Keep the useful close.', color: 'teal', icon: Bookmark, key: 'easpos.bookmarks.v1', kind: 'array' },
+  { to: '/settings', title: 'Settings', caption: 'Make this space your own.', color: 'slate', icon: Settings, key: 'easpos.settings.items.v1', kind: 'array' },
 ]
+function storedCount(key: string) {
+  try { const data = window.localStorage.getItem(key); const value = data ? JSON.parse(data) : []; return Array.isArray(value) ? value.length : 0 } catch { return 0 }
+}
 
 export function Dashboard() {
+  const { setHasScrolledPastHero } = useOutletContext<LayoutContext>()
+  const heroRef = useRef<HTMLElement>(null)
   const [phraseIndex, setPhraseIndex] = useState(0)
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const [tasks] = useLocalStorage<{ dueDate?: string; completed?: boolean }[]>('easpos.tasks.v1', [])
 
   useEffect(() => {
-    const timer = window.setInterval(() => setPhraseIndex((index) => (index + 1) % phrases.length), 5200)
-    return () => window.clearInterval(timer)
+    const hero = heroRef.current
+    if (!hero) return
+    const observer = new IntersectionObserver(([entry]) => setHasScrolledPastHero(!entry.isIntersecting), { threshold: 0.1 })
+    observer.observe(hero)
+    return () => observer.disconnect()
+  }, [setHasScrolledPastHero])
+
+  useEffect(() => {
+    const refresh = () => {
+      const next: Record<string, number> = {}
+      cards.forEach((card) => { next[card.key] = card.key === 'today' ? tasks.filter((task) => task.dueDate === new Date().toISOString().slice(0, 10) && !task.completed).length : storedCount(card.key) })
+      setCounts(next)
+    }
+    refresh()
+    window.addEventListener('storage', refresh)
+    return () => window.removeEventListener('storage', refresh)
+  }, [tasks])
+
+  useEffect(() => {
+    let timer = 0
+    const start = () => { window.clearInterval(timer); if (!document.hidden) timer = window.setInterval(() => setPhraseIndex((i) => (i + 1) % phrases.length), 15000) }
+    const visibility = () => { if (document.hidden) window.clearInterval(timer); else start() }
+    start()
+    document.addEventListener('visibilitychange', visibility)
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', visibility) }
   }, [])
 
-  return (
-    <div className="animate-fade-in">
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="eyebrow">{dateLabel}</p>
-          <h1 className="page-title mt-2">A little more intentional.</h1>
-          <p className="mt-2 text-sm text-muted">Small steps. Bigger possibilities.</p>
-        </div>
-        <Link to="/tasks" className="primary-button"><Plus size={16} /> Add a task</Link>
+  return <div className="dashboard-scroll">
+    <section className="motivation-hero" ref={heroRef} aria-label="Daily motivation">
+      <div className="phrase-stage" aria-live="polite" aria-atomic="true" key={phraseIndex}>
+        {phrases[phraseIndex].map((line, index) => <span className={`phrase-line phrase-line-${index + 1}`} key={`${phraseIndex}-${line}`}>{line}</span>)}
       </div>
-
-      <section className="hero-card glass-card" aria-label="Daily motivation">
-        <div className="hero-orb hero-orb-one" />
-        <div className="hero-orb hero-orb-two" />
-        <div className="relative z-10 max-w-3xl">
-          <div className="hero-label"><Sparkles size={14} /> YOUR DAILY SPACE</div>
-          <h2 key={phraseIndex} className="hero-phrase"><span className="hero-word-glow">{phrases[phraseIndex]}</span></h2>
-          <p className="hero-subtitle">Small steps. Bigger possibilities.</p>
-        </div>
-        <div className="hero-decoration" aria-hidden="true"><div className="orbit orbit-a" /><div className="orbit orbit-b" /><div className="orbit-core"><Sparkles size={22} /></div></div>
-      </section>
-
-      <section className="mt-5 grid gap-3 sm:grid-cols-3" aria-label="A moment to take stock">
-        <article className="stat-card glass-card"><div className="stat-icon stat-violet"><Check size={17} /></div><p className="stat-label">Tasks completed</p><div className="stat-value">0 <span>/ 0</span></div></article>
-        <article className="stat-card glass-card"><div className="stat-icon stat-mint"><Sparkles size={17} /></div><p className="stat-label">Habits in motion</p><div className="stat-value">0 <span>today</span></div></article>
-        <article className="stat-card glass-card"><div className="stat-icon stat-blue"><Clock3 size={17} /></div><p className="stat-label">Focus time</p><div className="stat-value">0 <span>min</span></div></article>
-      </section>
-
-      <div className="mt-9 mb-4 flex items-end justify-between gap-3">
-        <div><p className="eyebrow">YOUR PERSONAL OPERATING SYSTEM</p><h2 className="section-title">A space for what matters</h2></div>
-        <span className="hidden text-xs text-muted sm:block">Make it your own.</span>
-      </div>
-      <nav className="module-grid" aria-label="Your spaces">
-        <Link to="/" className="module-link module-link-overview module-purple glass-card">
-          <div className="module-link-icon"><Sparkles size={17} /></div>
-          <div><h3>Dashboard overview</h3><p>Your day, with room to breathe.</p></div>
-        </Link>
-        {modules.map(({ to, title, detail, icon: Icon, color }) => (
-          <Link key={to} to={to} className={`module-link module-${color} glass-card`}>
-            <div className="module-link-icon"><Icon size={17} /></div>
-            <div><h3>{title}</h3><p>{detail}</p></div>
+      <span className="hero-scroll-hint" aria-hidden="true"><span /> Scroll to explore</span>
+    </section>
+    <section className="menu-section" aria-labelledby="menu-heading">
+      <header className="menu-heading"><div><p className="eyebrow">YOUR PERSONAL SPACE</p><h1 id="menu-heading">Make room for what matters.</h1></div><p>A little more intentional, one day at a time.</p></header>
+      <nav className="glass-menu-grid" aria-label="Your modules">
+        {cards.map(({ to, title, caption, color, icon: Icon, key }) => (
+          <Link to={to} key={to} className={`glass-menu-card card-${color}${to === '/' ? ' overview-card' : ''}`}>
+            <span className="card-icon-tile"><Icon size={19} /></span>
+            <Icon className="card-watermark" size={150} strokeWidth={1.1} aria-hidden="true" />
+            <span className="card-info" aria-label={`${title} information`} title={caption}><CircleHelp size={15} /></span>
+            <span className="card-copy"><span className="card-title">{title}</span><span className="card-caption">{caption}</span></span>
+            <span className="card-open"><Play size={9} fill="currentColor" /> OPEN</span>
+            <span className={`card-count${(counts[key] ?? 0) === 0 ? ' count-empty' : ''}`} aria-label={`${counts[key] ?? 0} items`}><ArrowUpRight size={13} />{counts[key] ?? 0}</span>
           </Link>
         ))}
       </nav>
-
-      <section className="mt-7 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="glass-card section-card">
-          <div className="section-heading"><div><p className="eyebrow">YOUR PRIORITIES</p><h3 className="section-title">Today’s tasks</h3></div><Link to="/tasks" className="icon-button" aria-label="Open tasks"><ArrowUpRight size={16} /></Link></div>
-          <div className="empty-state"><div className="empty-icon"><Check size={19} /></div><p className="mt-3 text-sm font-medium">A clear page is a good place to begin.</p><Link to="/tasks" className="mt-3 text-xs text-accent">Make your first small step <ArrowUpRight size={13} className="inline" /></Link></div>
-        </div>
-        <div className="glass-card section-card">
-          <div className="section-heading"><div><p className="eyebrow">A MOMENT FOR YOU</p><h3 className="section-title">Daily intention</h3></div><Sparkles size={17} className="text-accent" /></div>
-          <div className="mt-7"><p className="text-sm leading-6 text-muted">You don’t have to do everything today. Just choose what matters next.</p><Link to="/focus" className="subtle-button mt-5">Find a little focus <ArrowUpRight size={14} /></Link></div>
-        </div>
-      </section>
-    </div>
-  )
+      <footer className="menu-footer"><span><Sparkles size={14} /> Your space, your pace.</span><span>One small step is still progress.</span></footer>
+    </section>
+  </div>
 }
