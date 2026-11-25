@@ -6,6 +6,7 @@ import { Focus } from './pages/Focus'
 import { Goals } from './pages/Goals'
 import { Habits } from './pages/Habits'
 import { Insights } from './pages/Insights'
+import { Lasul } from './pages/Lasul'
 import { Notes } from './pages/Notes'
 import { Tasks } from './pages/Tasks'
 import './modules.css'
@@ -14,6 +15,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/lasul" element={<Lasul />} />
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="tasks" element={<Tasks />} />
