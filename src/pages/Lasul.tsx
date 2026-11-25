@@ -42,6 +42,9 @@ export function Lasul() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hue, setHue] = useState(190)
   const [customColor, setCustomColor] = useState('#00d9ff')
+  const hueRef = useRef(hue)
+
+  useEffect(() => { hueRef.current = hue }, [hue])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -56,7 +59,6 @@ export function Lasul() {
     }
     const pointer = { x: 0, y: 0, active: false, pressed: false }
     let width = 0, height = 0, frame = 0
-    let colors = colorsFor(hue)
     let particles: Particle[] = []
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
 
@@ -128,7 +130,7 @@ export function Lasul() {
       else if (p.y > height + pad) p.y = -pad
     }
 
-    const drawParticle = (p: Particle) => {
+    const drawParticle = (p: Particle, colors: ParticleColor[]) => {
       const color = colors[p.colorIndex] || colors[0]
       ctx.beginPath()
       ctx.arc(p.x, p.y, p.size * 2.6, 0, Math.PI * 2)
@@ -143,6 +145,7 @@ export function Lasul() {
     const draw = () => {
       ctx.fillStyle = `rgba(3, 5, 13, ${config.trailFade})`
       ctx.fillRect(0, 0, width, height)
+      const colors = colorsFor(hueRef.current)
       const maxDistance = config.linkDistance, maxDistanceSquared = maxDistance * maxDistance
       for (let i = 0; i < particles.length; i++) {
         const a = particles[i]
@@ -160,7 +163,7 @@ export function Lasul() {
           }
         }
       }
-      for (const particle of particles) { update(particle); drawParticle(particle) }
+      for (const particle of particles) { update(particle); drawParticle(particle, colors) }
       if (pointer.active) {
         ctx.beginPath()
         ctx.arc(pointer.x, pointer.y, pointer.pressed ? 40 : 20, 0, Math.PI * 2)
@@ -213,11 +216,11 @@ export function Lasul() {
       window.removeEventListener('pointerup', up)
       canvas.removeEventListener('pointerleave', leave)
     }
-  }, [hue])
+  }, [])
 
-  const changeHue = (nextHue: number) => {
+  const changeHue = (nextHue: number, color: string) => {
     setHue(nextHue)
-    setCustomColor(`#${Math.round(nextHue).toString(16).padStart(2, '0')}00ff`)
+    setCustomColor(color)
   }
 
   return (
@@ -241,7 +244,7 @@ export function Lasul() {
               style={{ '--swatch': preset.color } as React.CSSProperties}
               aria-label={`${preset.name} particle color`}
               aria-pressed={hue === preset.hue}
-              onClick={() => changeHue(preset.hue)}
+              onClick={() => changeHue(preset.hue, preset.color)}
             />
           ))}
           <label className="lasul-custom-color" title="Choose custom particle color">
